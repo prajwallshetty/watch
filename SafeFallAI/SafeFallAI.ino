@@ -404,7 +404,10 @@ void setup() {
     // The task starts even if the IMU failed: it keeps trying to recover it.
     IMU.startTask(onImuSample, nullptr);
 
-    if (s_uiReady) UI.begin(Display.disp());
+    if (s_uiReady) {
+        UI.begin(Display.disp());
+        Display.logBacklightState("UI created");
+    }
 
     StateMachine.setListener(onStateTransition, nullptr);
     StateMachine.begin(Settings.get().countdownS);

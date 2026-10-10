@@ -243,6 +243,36 @@ Options in `src/config/DebugConfig.h`:
 
 ---
 
+## Black screen troubleshooting
+
+`DISPLAY_DIAGNOSTIC_MODE` (in `src/config/AppConfig.h`, currently **1**)
+builds a display bring-up firmware: no automatic screen-off, a full-screen
+RED → GREEN → BLUE → WHITE test before the UI, and backlight/panel logs:
+
+```
+[DISPLAY] Backlight GPIO2 after tft.begin(): measured_high=100% (TFT_eSPI sets it HIGH)
+[DISPLAY] Backlight GPIO2 -> 100% (PWM duty 255/255) [init (forced on)]
+[DISPLAY] BL[after init] GPIO2 mode=PWM ch7 duty=255/255 (100%) measured_high=100% power=ON panel=AWAKE flushes=0
+[DISPLAY] Colour test: RED ... GREEN ... BLUE ... WHITE
+[POWER] Screen timeout DISABLED (DISPLAY_DIAGNOSTIC_MODE=1): display stays on; ...
+[DISPLAY] BL[periodic] ... (every 10 s)
+```
+
+`measured_high` is read back from the GPIO2 pad, so it shows what the pin is
+really doing. If PWM is requested but not seen on the pin, the firmware falls
+back to a plain HIGH (as TFT_eSPI drives it) and logs an `ERROR`.
+`DISPLAY_BACKLIGHT_PWM 0` forces that plain digital backlight.
+
+| You see | Meaning |
+|---|---|
+| Colours visible, then UI visible | Display path OK; set `DISPLAY_DIAGNOSTIC_MODE 0` |
+| Colours visible, UI black | LVGL/UI problem, not hardware |
+| Black, `measured_high` ≈ 100 % | Backlight on, panel gets no pixels: check the TFT_eSPI setup / SPI |
+| Black, `measured_high` = 0 % | Backlight not driven: send the `[DISPLAY] BL[...]` lines |
+| RED shows as blue | Panel colour order (RGB/BGR) differs |
+
+Every screen power change is logged as `[POWER] Screen ON -> DIM/OFF (reason, idle ms)`.
+
 ## Using the watch
 
 | Where | Action |

@@ -31,12 +31,24 @@ public:
     bool firstFlushDone() const { return m_flushCount > 0; }
     uint32_t flushCount() const { return m_flushCount; }
     lv_disp_t* disp() const { return m_disp; }
+    bool panelAsleep() const { return m_panelAsleep; }
+    bool backlightPwm() const { return m_pwm; }
+
+    // Diagnostics: duty requested on GPIO2, and the fraction of time GPIO2 is
+    // actually high, sampled from the pad (does not disturb the LEDC output).
+    uint8_t backlightPercent() const { return m_blPercent; }
+    uint8_t measureBacklightHighPercent();
+    void logBacklightState(const char* context);
 
     // LVGL callback (public so the C trampoline can reach it)
     void flush(lv_disp_drv_t* drv, const lv_area_t* area, lv_color_t* color_p);
 
+    static const char* powerName(Power p);
+
 private:
-    void applyBacklight(uint8_t percent);
+    void setupBacklight();
+    void runColorTest();
+    void applyBacklight(uint8_t percent, const char* why);
 
     lv_disp_draw_buf_t m_drawBuf;
     lv_disp_drv_t m_dispDrv;
@@ -53,6 +65,10 @@ private:
     bool m_panelAsleep = false;
     bool m_waking = false;
     uint32_t m_wakeReadyMs = 0;
+
+    bool m_pwm = false;            // LEDC PWM active on GPIO2 (else plain digital)
+    uint8_t m_blPercent = 0;       // last value written to the backlight
+    uint32_t m_lastDiagLogMs = 0;
 };
 
 extern DisplayManager Display;

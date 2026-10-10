@@ -132,6 +132,23 @@
 #define SCREEN_DIM_BEFORE_OFF_S          6      // dim this many seconds before turning off
 #define DISPLAY_PANEL_SLEEP_WHEN_OFF     1      // GC9A01 sleep-in while the screen is off
 #define LVGL_DRAW_BUF_LINES              24     // 240 * 240 / 10 = 24 lines (LVGL_Arduino sizing)
+
+// --- Display bring-up diagnostics (TEMPORARY) --------------------------------
+// 1 = black-screen investigation build:
+//     * automatic screen dim/off is disabled (display stays on; fall detection,
+//       IMU, battery and BLE are unaffected)
+//     * a full-screen RED / GREEN / BLUE / WHITE test runs before the UI
+//     * backlight + panel state is logged every DISPLAY_DIAG_LOG_INTERVAL_MS
+// Set back to 0 once the display is confirmed working.
+#define DISPLAY_DIAGNOSTIC_MODE          1
+#define DISPLAY_BOOT_COLOR_TEST          DISPLAY_DIAGNOSTIC_MODE
+#define DISPLAY_COLOR_TEST_STEP_MS       700
+#define DISPLAY_DIAG_LOG_INTERVAL_MS     10000
+// 1 = backlight dimming via LEDC PWM on GPIO2 (verified at boot; falls back to
+//     plain HIGH automatically if no PWM signal is measured on the pin).
+// 0 = plain digital HIGH/LOW on GPIO2, exactly like TFT_eSPI/LVGL_Arduino
+//     (no dimming).
+#define DISPLAY_BACKLIGHT_PWM            1
 #define LVGL_TICK_PERIOD_MS              2      // esp_timer -> lv_tick_inc()
 
 // ---------------------------------------------------------------------------

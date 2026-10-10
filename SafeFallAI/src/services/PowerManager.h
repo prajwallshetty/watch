@@ -11,6 +11,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include "../hardware/DisplayManager.h"
 
 class PowerManager {
 public:
@@ -31,11 +32,14 @@ public:
     uint32_t bootCount() const { return m_bootCount; }
 
     void safeReboot(const char* reason);
+    bool autoTimeoutEnabled() const { return m_autoTimeout; }
 
 private:
     void pollBootButton(uint32_t nowMs);
+    void setPower(DisplayManager::Power want, const char* reason, uint32_t idleMs);
 
     uint32_t m_lastActivityMs = 0;
+    bool m_autoTimeout = true;
     const char* m_resetReason = "UNKNOWN";
     bool m_abnormalReset = false;
     bool m_wdtArmed = false;
